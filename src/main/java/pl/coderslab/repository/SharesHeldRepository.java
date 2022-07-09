@@ -10,5 +10,6 @@ import java.util.List;
 public interface SharesHeldRepository extends JpaRepository<SharesHeld, Long> {
 
     List<SharesHeld> findAllByUserId(Long userId);
-    SharesHeld findFirstByUserIdAndCompanyId(Long userId, Long companyId);
+  //  SharesHeld findFirstByUser_IdAndAndDateAndTime (Long userId, String dateAndTime);
+    SharesHeld findFirstByUserIdAndCompanyId (Long userId, Long companyId);
 }

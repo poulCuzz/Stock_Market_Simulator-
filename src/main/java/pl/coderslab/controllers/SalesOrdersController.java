@@ -56,7 +56,7 @@ public class SalesOrdersController {
             buyOrders.setPriceLimit(buyOrder.getPriceLimit());
             buyOrders.setVolumen(buyOrder.getVolumen());
             model.addAttribute("buyOrders", buyOrders);
-            return "market/sell";
+            return "redirect:/sell/" + buyOrder.getUser().getId() + "/" + buyOrder.getCompany().getId() + "/" + buyOrder.getVolumen() + "/" + buyOrder.getPriceLimit();
         }
 
         SalesOrders salesOrders = new SalesOrders();
@@ -77,6 +77,9 @@ public class SalesOrdersController {
         Long companyId = salesOrders.getCompany().getId();
         User user = userRepository.findById(userId).get();
         SharesHeld sharesHeld = sharesHeldRepository.findFirstByUserIdAndCompanyId(userId, companyId);
+        System.out.println("************************************************************************");
+        System.out.println(volumen);
+        System.out.println(sharesHeld.toString());
         if (volumen > sharesHeld.getVolume()) {
             System.out.println("!!!ustawiłeś za duży volumen, nie masz tylu akcji!!!");
             model.addAttribute("salesOrder", salesOrders);

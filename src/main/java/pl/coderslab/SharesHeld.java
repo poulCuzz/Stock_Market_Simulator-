@@ -53,20 +53,19 @@ public class SharesHeld {
         this.user = user;
     }
 
+    public void setPurchasePriceAll() {
+        this.purchasePriceAll = volume * purchasePrice ;
+    }
+
+    public void setProfitOrLoss() {
+        this.profitOrLoss = valueAll - purchasePriceAll;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String dateAndTime;
     private int volume;
-
-    public void setPurchasePriceAll(double purchasePriceAll) {
-        this.purchasePriceAll = volume * purchasePrice ;
-    }
-
-    public void setProfitOrLoss(double profitOrLoss) {
-        this.profitOrLoss = valueAll - purchasePriceAll;
-    }
-
     private double purchasePrice;
     private double valueAll;
     private double purchasePriceAll;

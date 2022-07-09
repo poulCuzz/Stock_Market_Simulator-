@@ -16,7 +16,11 @@
 <body>
 
 
-    <h2>Hello! Here's your stocks:</h2>
+    <h2>Welcome in your wallet</h2><br/>
+<strong></strong>
+    <div>
+        <label><strong>Value of all your stocks:</strong></label><a>&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp</a><label><strong>Profit/Loss:</strong></label>
+    </div>
 
 <c:forEach var="bo" items="${sharesHeld}"><%--@elvariable id="sharesHeld" type="pl.coderslab.SharesHeld"--%>
     <table border="2">
@@ -43,8 +47,6 @@
         <form action="http://localhost:8080/sellorder/add/${bo.user.id}/${bo.company.id}">
             <input class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" type="submit" value="issue a sales order" />
         </form>
-<%--        <jsp:useBean id="sharesHeld" scope="request" type="pl.coderslab.SharesHeld"/>--%>
-<%--       <a> <c:url  value="/sellorder/add/${sharesHeld.user.id}/${sharesHeld.company.id}"/> ">issue a sales order</a>--%>
     </table>
 </c:forEach>
 </body>

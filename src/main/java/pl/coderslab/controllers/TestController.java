@@ -35,6 +35,11 @@ public class TestController {
     @RequestMapping("/test2")
     @ResponseBody
     public String test2(){
+        SharesHeld sharesHeld = new SharesHeld();
+        sharesHeld.setVolume(2);
+        sharesHeld.setPurchasePrice(110.0);
+        sharesHeld.setPurchasePriceAll();
+        sharesHeldRepository.save(sharesHeld);
 
 
         return "OK";

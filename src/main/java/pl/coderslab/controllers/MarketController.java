@@ -9,6 +9,7 @@ import pl.coderslab.services.MarketService;
 import pl.coderslab.repository.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -67,7 +68,7 @@ public class MarketController {
         return "market/sell";
     }
 
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!USTAWIC WARUNEK DLA RÓŻNYCH WOLUMENÓW!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
     @PostMapping("/sell/{userId}/{companyName}/{volumen}/{priceLimit}")
     public String sellFromMarket(@Valid BuyOrders buyOrders, BindingResult result, @RequestParam String yourId, @RequestParam int volumen, Model model){
@@ -80,9 +81,9 @@ public class MarketController {
         Long userId = buyOrders.getUser().getId();
         Long usersCompanyId = buyOrders.getCompany().getId();
         BuyOrders usersBuyOrder = buyOrdersRepository.findFirstByUser_IdAndCompany_Id(userId, usersCompanyId);
-        System.out.println("*****************************************************************************");
-        System.out.println(userId);
-        System.out.println(usersCompanyId);
+        Companies company = companiesRepository.findById(usersCompanyId).get();
+        LocalDateTime localDateTime = LocalDateTime.now();
+        String dateAndTime = localDateTime.toString().replaceAll("\\..*", "").replaceFirst("T", "  ");
         double usersPriceLimit = usersBuyOrder.getPriceLimit();
         Long yourIdLong = Long.parseLong(yourId);
         if(yourIdLong == userId) {
@@ -114,9 +115,11 @@ public class MarketController {
             sharesHeld.setVolume(buyOrders.getVolumen());
             sharesHeld.setUser(userRepository.findById(userId).get());
             sharesHeld.setCompany(buyOrders.getCompany());
-            sharesHeld.setDateAndTime("???");
+            sharesHeld.setDateAndTime(dateAndTime);
             sharesHeld.setPurchasePrice(usersPriceLimit);
-            sharesHeld.setValueAll(buyOrders.getCompany().getPricePerStock() * buyOrders.getVolumen());
+            sharesHeld.setValueAll(company.getPricePerStock() * buyOrders.getVolumen());
+            sharesHeld.setPurchasePriceAll();
+            sharesHeld.setProfitOrLoss();
             sharesHeldRepository.save(sharesHeld);
 
             SharesHeld yourSharesHeld = sharesHeldRepository.findFirstByUserIdAndCompanyId(yourIdLong, usersCompanyId);
@@ -138,9 +141,11 @@ public class MarketController {
             sharesHeld.setVolume(buyOrders.getVolumen());
             sharesHeld.setUser(userRepository.findById(userId).get());
             sharesHeld.setCompany(buyOrders.getCompany());
-            sharesHeld.setDateAndTime("???");
+            sharesHeld.setDateAndTime(dateAndTime);
             sharesHeld.setPurchasePrice(usersPriceLimit);
-            sharesHeld.setValueAll(buyOrders.getCompany().getPricePerStock() * volumen);
+            sharesHeld.setValueAll(company.getPricePerStock() * volumen);
+            sharesHeld.setPurchasePriceAll();
+            sharesHeld.setProfitOrLoss();
             sharesHeldRepository.save(sharesHeld);
 
             SharesHeld yourSharesHeld = sharesHeldRepository.findFirstByUserIdAndCompanyId(yourIdLong, usersCompanyId);
@@ -209,10 +214,10 @@ public class MarketController {
         User user = userRepository.findById(userId).get();
         User your = userRepository.findById(yourIdLong).get();
         Long usersCompanyId = salesOrder.getCompany().getId();
+        Companies company = companiesRepository.findById(usersCompanyId).get();
         SalesOrders usersSalesOrder = salesOrdersRepository.findFirstByUser_IdAndCompany_Id(userId, usersCompanyId);
-        System.out.println("*****************************************************************************");
-        System.out.println(userId);
-        System.out.println(usersCompanyId);
+        LocalDateTime localDateTime = LocalDateTime.now();
+        String dateAndTime = localDateTime.toString().replaceAll("\\..*", "").replaceFirst("T", "  ");
         double usersPriceLimit = usersSalesOrder.getPriceLimit();
         if(yourIdLong == userId) {
             System.out.println("!!!nie możesz dokonywać tranzakcji z samym sobą!!!");
@@ -240,9 +245,11 @@ public class MarketController {
             sharesHeld.setVolume(volumen);
             sharesHeld.setCompany(companiesRepository.findById(usersCompanyId).get());
             sharesHeld.setUser(your);
-            sharesHeld.setDateAndTime("???");
+            sharesHeld.setDateAndTime(dateAndTime);
             sharesHeld.setPurchasePrice(usersPriceLimit);
-            sharesHeld.setValueAll(salesOrder.getCompany().getPricePerStock() * salesOrder.getVolumen());
+            sharesHeld.setValueAll(company.getPricePerStock() * salesOrder.getVolumen());
+            sharesHeld.setPurchasePriceAll();
+            sharesHeld.setProfitOrLoss();
             sharesHeldRepository.save(sharesHeld);
             return "redirect:/held/list?userId=" + yourId;
         }else if(salesOrder.getPriceLimit() == usersPriceLimit && volumen < usersSalesOrder.getVolumen()) {
@@ -255,9 +262,11 @@ public class MarketController {
             sharesHeld.setVolume(volumen);
             sharesHeld.setCompany(companiesRepository.findById(usersCompanyId).get());
             sharesHeld.setUser(your);
-            sharesHeld.setDateAndTime("???");
+            sharesHeld.setDateAndTime(dateAndTime);
             sharesHeld.setPurchasePrice(usersPriceLimit);
-            sharesHeld.setValueAll(salesOrder.getCompany().getPricePerStock() * volumen);
+            sharesHeld.setValueAll(company.getPricePerStock() * volumen);
+            sharesHeld.setPurchasePriceAll();
+            sharesHeld.setProfitOrLoss();
             sharesHeldRepository.save(sharesHeld);
             return "redirect:/held/list?userId=" + yourId;
         }else if(salesOrder.getPriceLimit() < usersPriceLimit) {

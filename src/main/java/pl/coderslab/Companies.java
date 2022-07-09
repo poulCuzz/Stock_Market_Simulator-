@@ -16,6 +16,15 @@ import java.math.BigDecimal;
 @Setter
 public class Companies {
 
+    @Override
+    public String toString() {
+        return "Companies{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", pricePerStock=" + pricePerStock +
+                '}';
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

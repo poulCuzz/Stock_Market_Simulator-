@@ -27,14 +27,14 @@ public class User {
     @NotBlank
     private String lastName;
     @NotBlank
-    @Column(unique = true, nullable = false, length = 8)
+    @Column(unique = true, nullable = false, length = 10)
     private String nick;
     @Range(min = 1L, max = 150L)
     private int age;
     @NotBlank
+    @Column(unique = true, nullable = false)
     private String password;
-    @Min(500)
-    @Max(100000)
+
     private double moneyUsd;
     private int enabled;
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
