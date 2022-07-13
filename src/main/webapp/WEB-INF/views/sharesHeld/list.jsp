@@ -1,4 +1,4 @@
-
+<%@ page import="pl.coderslab.Companies" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
@@ -19,7 +19,8 @@
     <h2>Welcome in your wallet</h2><br/>
 <strong></strong>
     <div>
-        <label><strong>Value of all your stocks:</strong></label><a>&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp</a><label><strong>Profit/Loss:</strong></label>
+        <label><strong>Value of all your stocks:</strong><lobel></lobel></label><a>&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp</a><label><strong>Profit/Loss:</strong></label>
+
     </div>
 
 <c:forEach var="bo" items="${sharesHeld}"><%--@elvariable id="sharesHeld" type="pl.coderslab.SharesHeld"--%>

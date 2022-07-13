@@ -12,7 +12,7 @@
     <title>Title</title>
 </head>
 <body>
-<h2>Stock Market</h2><br/>
+<h2>Stock Market *All*</h2><br/>
 <h4>******************Buy_Orders*****************</h4>
 <c:forEach var="bo" items="${buyOrders}">
     <table border="1">

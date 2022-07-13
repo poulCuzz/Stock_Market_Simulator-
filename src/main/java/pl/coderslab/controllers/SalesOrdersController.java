@@ -15,6 +15,7 @@ import pl.coderslab.repository.UserRepository;
 import pl.coderslab.services.MarketService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -35,7 +36,7 @@ public class SalesOrdersController {
         this.marketService = marketService;
     }
 
-    //dodawanie do SalesOrders i usuwanie z SharesHeld
+    // logika po wcisnięciu przycisku 'issue a sales order'
 
     @RequestMapping("/add/{userId}/{companyId}")
     public String addSaleOrder(@PathVariable Long userId,
@@ -100,5 +101,118 @@ public class SalesOrdersController {
         }
 
     }
+
+
+    @RequestMapping("/edit/{userId}/{companyId}")
+    public String editSalesOrder (@PathVariable Long userId, @PathVariable Long companyId, Model model) {
+        model.addAttribute("salesOrder", salesOrdersRepository.findFirstByUser_IdAndCompany_Id(userId, companyId));
+        return "salesOrder/add";
+    }
+
+    @RequestMapping (value = "/edit/{userId}/{companyId}", method = RequestMethod.POST)
+    public String editSalesOrder (@Valid SalesOrders salesOrder, BindingResult result, Model model) {
+        if(result.hasErrors()){
+            model.addAttribute("salesOrder", salesOrder);
+            return "salesOrder/add";
+        }
+        LocalDateTime localDateTime = LocalDateTime.now();
+        String dateAndTime = localDateTime.toString().replaceAll("\\..*", "").replaceFirst("T", "  ");
+        SharesHeld sharesHeld = sharesHeldRepository.findFirstByUserIdAndCompanyId(salesOrder.getUser().getId(), salesOrder.getCompany().getId());
+        SalesOrders salesOrderMain = salesOrdersRepository.findFirstByUser_IdAndCompany_Id(salesOrder.getUser().getId(), salesOrder.getCompany().getId());
+        BuyOrders buyOrder = new BuyOrders();
+        List<BuyOrders> list = marketService.getBuyOrders();
+        for (int i = 0; i < list.size(); i++) {
+            if(list.get(i).getCompany().equals(salesOrder.getCompany())) {
+                buyOrder = list.get(i);
+            }else {
+                buyOrder = null;
+            }
+        }
+
+        try{
+            if(buyOrder.getUser() != null) {
+                if(salesOrder.getPriceLimit() <= buyOrder.getPriceLimit()) {
+                    System.out.println("jest już zlecenie na giełdzie zgodne z twoim priceLimit");
+                    return "redirect:/market";
+                }
+            }
+        }
+        catch (NullPointerException e) {
+            System.out.println("!!!buyOrder.getUser jest nullem, czyli nie ma na giełdzie pasującego ogłoszenia!!!");
+        }
+
+
+
+        if(salesOrder.getVolumen() > (sharesHeld.getVolume() + salesOrderMain.getVolumen())) {
+            System.out.println("nie masz tylu akcji");
+            return "redirect:/market";
+        }
+
+        Long userId = salesOrder.getUser().getId();
+        Long companyId = salesOrder.getCompany().getId();
+        SalesOrders editedSalesOrder = salesOrdersRepository.findFirstByUser_IdAndCompany_Id(userId, companyId);
+        editedSalesOrder.setVolumen(salesOrder.getVolumen());
+        editedSalesOrder.setCompany(salesOrder.getCompany());
+        editedSalesOrder.setUser(salesOrder.getUser());
+        editedSalesOrder.setPriceLimit(salesOrder.getPriceLimit());
+        salesOrdersRepository.save(editedSalesOrder);
+
+        if(salesOrder.getVolumen() < salesOrderMain.getVolumen()) {
+            SharesHeld sharesHeld1 = new SharesHeld();
+            sharesHeld1.setDateAndTime(dateAndTime);
+            sharesHeld1.setPurchasePrice(salesOrderMain.getPriceLimit());
+            sharesHeld1.setCompany(salesOrder.getCompany());
+            sharesHeld1.setUser(salesOrder.getUser());
+            sharesHeld1.setVolume(salesOrderMain.getVolumen() - salesOrder.getVolumen());
+            sharesHeld1.setValueAll((salesOrderMain.getVolumen() - salesOrder.getVolumen()) * salesOrder.getCompany().getPricePerStock());
+            sharesHeld1.setPurchasePriceAll();
+            sharesHeld1.setProfitOrLoss();
+            sharesHeldRepository.save(sharesHeld1);
+        }
+        if(salesOrder.getVolumen() > salesOrderMain.getVolumen()){
+            int volumen = sharesHeld.getVolume() - (salesOrder.getVolumen() - salesOrderMain.getVolumen());
+            sharesHeld.setVolume(volumen);
+            sharesHeld.setValueAll(volumen * salesOrder.getCompany().getPricePerStock());
+            sharesHeld.setPurchasePrice(sharesHeld.getPurchasePrice());
+            sharesHeld.setPurchasePriceAll();
+            sharesHeld.setProfitOrLoss();
+            sharesHeldRepository.save(sharesHeld);
+        }
+
+        return "redirect:/market";
+    }
+
+    @RequestMapping("/delete/{userId}/{companyId}")
+    public String delete (@PathVariable Long userId, @PathVariable Long companyId) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        String dateAndTime = localDateTime.toString().replaceAll("\\..*", "").replaceFirst("T", "  ");
+        SharesHeld sharesHeld1 = sharesHeldRepository.findFirstByUserIdAndCompanyId(userId, companyId);
+        SalesOrders salesOrders = salesOrdersRepository.findFirstByUser_IdAndCompany_Id(userId, companyId);
+        if(sharesHeld1 == null) {
+            SharesHeld sharesHeld = new SharesHeld();
+            sharesHeld.setVolume(salesOrders.getVolumen());
+            sharesHeld.setUser(salesOrders.getUser());
+            sharesHeld.setCompany(salesOrders.getCompany());
+            sharesHeld.setPurchasePrice(salesOrders.getPriceLimit());
+            sharesHeld.setDateAndTime(dateAndTime);
+            sharesHeld.setValueAll(salesOrders.getCompany().getPricePerStock() * salesOrders.getVolumen());
+            sharesHeld.setPurchasePriceAll();
+            sharesHeld.setProfitOrLoss();
+            sharesHeldRepository.save(sharesHeld);
+
+            salesOrdersRepository.delete(salesOrders);
+            return "redirect:/market";
+        }else {
+            sharesHeld1.setVolume(sharesHeld1.getVolume() + salesOrders.getVolumen());
+            sharesHeld1.setValueAll(sharesHeld1.getValueAll() + sharesHeld1.getCompany().getPricePerStock() * salesOrders.getVolumen());
+            sharesHeld1.setPurchasePriceAll();
+            sharesHeld1.setProfitOrLoss();
+            sharesHeldRepository.save(sharesHeld1);
+            salesOrdersRepository.delete(salesOrders);
+            return "redirect:/market";
+        }
+
+    }
+
 }
 

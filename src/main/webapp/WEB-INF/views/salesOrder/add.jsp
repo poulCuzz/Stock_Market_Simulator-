@@ -14,9 +14,9 @@
 <body>
 <%--@elvariable id="salesOrder" type="pl.coderslab.SalesOrders"--%>
 <form:form method="post" modelAttribute="salesOrder">
-    <form:input type="number" path="volumen" id="volumen" step="1"/><label for="volumen">volume</label><br/>
+    <form:input type="number" path="volumen" id="volumen" step="1" min="1" /><label for="volumen">volume</label><br/>
     <form:errors path="volumen"/>
-    <form:input path="priceLimit" id="limit" type="number"/><label for="limit">priceLimit</label><br/>
+    <form:input path="priceLimit" id="limit" type="number" min="1"/><label for="limit">priceLimit</label><br/>
     <form:errors path="priceLimit"/>
     <form:hidden path="user" />
     <form:hidden path="company"/>
